@@ -36,6 +36,7 @@
             background: #fff;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center; /* Center align content */
         }
         h1 {
             font-size: 2.5em;
@@ -51,6 +52,10 @@
         iframe {
             display: block;
             margin: 0 auto;
+            width: 100%; /* Make the iframe fill its container width */
+            height: 100%; /* Ensure it fills the height as well */
+            aspect-ratio: 16 / 9; /* Maintain 16:9 aspect ratio */
+            border: none; /* Remove default border */
         }
     </style>
 </head>
@@ -65,8 +70,7 @@
         <h1>Welcome to Our Homepage</h1>
         <p>This is a simple home page with a navigation bar. Use the links above to navigate to different pages.</p>
         <p>Explore our latest updates and news to stay informed.</p>
-        <p><iframe width="560" height="315" src="https://www.youtube.com/embed/PkAH3Q7xaJI?si=-A6mMZlHOsSdbA83" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></p>
-      
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/PkAH3Q7xaJI?si=-A6mMZlHOsSdbA83" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
 
 </body>
