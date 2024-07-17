@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spotify Song Finder</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background-color: #121212;
+      color: #FFFFFF;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1 {
+      color: #1DB954;
+      margin-bottom: 20px;
+    }
+
+    input {
+      padding: 10px;
+      margin-bottom: 20px;
+      border: none;
+      border-radius: 5px;
+      width: 300px;
+      font-size: 16px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      background-color: #181818;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 10px;
+      width: 300px;
+      text-align: center;
+      transition: background-color 0.3s;
+    }
+
+    li:hover {
+      background-color: #282828;
+    }
+
+    .play-button {
+      background-color: #1DB954;
+      border: none;
+      border-radius: 50%;
+      color: #FFFFFF;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 10px;
+      padding: 10px;
+      transition: background-color 0.3s;
+    }
+
+    .play-button:hover {
+      background-color: #1ed760;
+    }
+  </style>
+</head>
+<body>
+  <h1>Find and Play Songs</h1>
+  <input type="text" id="search-input" placeholder="Search for a song...">
+  <ul id="songs-list"></ul>
+
+  <script src="https://sdk.scdn.co/spotify-player.js"></script>
+  <script>
+    const clientId = 'b114a3753f4847cbb4af6b27360df038';
+    const clientSecret = '018795b0132e46bf8dddef270d806327'; // Store securely
+    const redirectUri = 'http://localhost/adet-sena/index.html';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    let token = null;
+
+    async function exchangeCodeForToken(code) {
+      const response = await fetch('https://accounts.spotify.com/api/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': 'Basic ' + btoa(clientId + ':' + clientSecret)
+        },
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          code: code,
+          redirect_uri: redirectUri
+        })
+      });
+
+      const data = await response.json();
+      console.log('Token Data:', data);
+      token = data.access_token;
+      initializeSpotifyPlayer();
+    }
+
+    async function fetchWebApi(endpoint, method, body) {
+      const res = await fetch(`https://api.spotify.com/${endpoint}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        method,
+        body: JSON.stringify(body)
+      });
+      return await res.json();
+    }
+
+    async function searchSongs(query) {
+      const data = await fetchWebApi(
+        `v1/search?q=${encodeURIComponent(query)}&type=track&limit=5`, 'GET'
+      );
+      console.log('Search Results:', data);
+      return data.tracks.items;
+    }
+
+    async function displaySongs() {
+      const query = document.getElementById('search-input').value;
+      const songs = await searchSongs(query);
+      const songsList = document.getElementById('songs-list');
+      songsList.innerHTML = '';
+
+      songs.forEach(({ name, artists, uri }) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${name} by ${artists.map(artist => artist.name).join(', ')}`;
+        
+        const playButton = document.createElement('button');
+        playButton.textContent = 'Play';
+        playButton.classList.add('play-button');
+        playButton.addEventListener('click', () => playTrack(uri));
+
+        listItem.appendChild(playButton);
+        songsList.appendChild(listItem);
+      });
+    }
+
+    let player;
+    let device_id;
+
+    function initializeSpotifyPlayer() {
+      window.onSpotifyWebPlaybackSDKReady = () => {
+        player = new Spotify.Player({
+          name: 'Web Playback SDK Quick Start Player',
+          getOAuthToken: cb => { cb(token); }
+        });
+
+        player.addListener('ready', ({ device_id: id }) => {
+          console.log('Ready with Device ID', id);
+          device_id = id;
+        });
+
+        // Error handling
+        player.addListener('initialization_error', ({ message }) => { console.error('Initialization Error:', message); });
+        player.addListener('authentication_error', ({ message }) => { console.error('Authentication Error:', message); });
+        player.addListener('account_error', ({ message }) => { console.error('Account Error:', message); });
+        player.addListener('playback_error', ({ message }) => { console.error('Playback Error:', message); });
+        player.addListener('player_state_changed', state => { console.log('Player State Changed:', state); });
+        player.addListener('not_ready', ({ device_id: id }) => { console.log('Device ID has gone offline', id); });
+
+        player.connect();
+      };
+    }
+
+    async function playTrack(uri) {
+      console.log('Attempting to play track with URI:', uri);
+      if (!device_id) {
+        console.error('Device ID is not available');
+        return;
+      }
+
+      fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device_id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ uris: [uri] }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+      }).then(response => {
+        if (!response.ok) {
+          return response.json().then(err => Promise.reject(err));
+        } else {
+          console.log('Track played successfully');
+        }
+      }).catch(err => {
+        console.error('Failed to play track:', err);
+      });
+    }
+
+    document.getElementById('search-input').addEventListener('change', displaySongs);
+
+    if (code) {
+      exchangeCodeForToken(code);
+    } else {
+      const authUrl = `https://accounts.spotify.com/authorize` +
+        `?response_type=code` +
+        `&client_id=${clientId}` +
+        `&scope=user-read-playback-state%20user-modify-playback-state%20streaming%20user-top-read` +
+        `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+        `&state=your_random_state`;
+
+      window.location.href = authUrl;
+    }
+  </script>
+</body>
+</html>
