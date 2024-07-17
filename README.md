@@ -19,8 +19,9 @@ Welcome to YouTube Premium Namin, a simple web application that allows you to se
 
 1. Clone this repository.
 2. Open `index.html` in your web browser.
-3. Enter keywords in the search box and click on "Search".
-4. Click on any video thumbnail to start watching it.
+3. Click Youtube API
+4. Enter keywords in the search box and click on "Search".
+5. Click on any video thumbnail to start watching it.
 
 ## API Key
 
