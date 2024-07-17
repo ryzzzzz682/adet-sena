@@ -25,7 +25,7 @@ Welcome to YouTube Premium Namin, a simple web application that allows you to se
 
 ## API Key
 
-To use the YouTube Data API, you need to provide your own API key. Replace `'YAIzaSyAQXjLOhOs5x4dB0Jou_KFTyGGDaU08T9I'` in the JavaScript code (`script` tag in `index.html`) with your actual API key obtained from the Google Cloud Console.
+To use the YouTube Data API, you need to provide your own API key. `'YAIzaSyAQXjLOhOs5x4dB0Jou_KFTyGGDaU08T9I'` in the JavaScript code (`script` tag in `index.html`) with your actual API key obtained from the Google Cloud Console.
 
 ## Development
 
