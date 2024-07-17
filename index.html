@@ -6,27 +6,47 @@
     <title>Home Page</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
         }
         .navbar {
-            background-color: #333;
+            background-color: #1e1e1e;
             overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .navbar a {
             float: left;
             display: block;
-            color: white;
+            color: #fff;
             text-align: center;
             padding: 14px 20px;
             text-decoration: none;
+            transition: background-color 0.3s ease;
         }
         .navbar a:hover {
-            background-color: #575757;
+            background-color: #333;
         }
         .container {
+            max-width: 1200px;
+            margin: 20px auto;
             padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        p {
+            font-size: 1.2em;
+            line-height: 1.6;
+            text-align: center;
         }
     </style>
 </head>
@@ -35,8 +55,6 @@
     <div class="navbar">
         <a href="index.html">Home</a>
         <a href="youtube.html">YouTube API</a>
-        <a href="services.html">Services</a>
-        <a href="contact.html">Contact</a>
     </div>
 
     <div class="container">
