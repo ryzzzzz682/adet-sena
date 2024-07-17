@@ -1,240 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>YouTube Player</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f9f9f9;
-            display: flex;
+        }
+        .navbar {
+            background-color: #333;
+            overflow: hidden;
+        }
+        .navbar a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+        }
+        .navbar a:hover {
+            background-color: #575757;
         }
         .container {
-            width: 100%;
-            margin-left: 200px; /* Adjusted margin to account for the sidebar */
             padding: 20px;
-        }
-        .search-container {
-            display: flex;
-            align-items: center;
-            padding: 10px 0;
-            background-color: #fff;
-            border-bottom: 1px solid #e0e0e0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .search-container input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 2px;
-            margin-right: 10px;
-            font-size: 16px;
-        }
-        .search-container button {
-            padding: 10px 20px;
-            border: none;
-            background-color: #ff0000;
-            color: #fff;
-            font-size: 16px;
-            border-radius: 2px;
-            cursor: pointer;
-        }
-        .search-container button:hover {
-            background-color: #cc0000;
-        }
-        #results {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .video-result {
-            display: flex;
-            flex-direction: column;
-            cursor: pointer;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: box-shadow 0.3s ease;
-        }
-        .video-result:hover {
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        .video-result img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        .video-result .video-info {
-            padding: 10px;
-        }
-        .video-result .video-info h3 {
-            margin: 0;
-            font-size: 16px;
-            line-height: 1.2;
-            color: #333;
-        }
-        .video-result .video-info p {
-            margin: 5px 0 0;
-            font-size: 14px;
-            color: #666;
-        }
-        #player {
-            display: none;
-            justify-content: center;
-            margin-top: 20px;
-            height: 577px;
-            width: 1200px;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        #sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 200px;
-            height: 100%;
-            background-color: #333;
-            color: #fff;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-        }
-        #sidebar button {
-            background-color: #ff0000;
-            border: none;
-            color: #fff;
-            padding: 10px;
-            border-radius: 2px;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        #sidebar button:hover {
-            background-color: #cc0000;
-        }
-        #sidebar h2 {
-            margin-top: 0;
         }
     </style>
 </head>
 <body>
-    <div id="sidebar">
-        <h2>Menu</h2>
-        <button onclick="showSearchContainer()">Show Search</button>
+
+    <div class="navbar">
+        <a href="index.html">Home</a>
+        <a href="youtube.html">YouTube API</a>
+        <a href="services.html">Services</a>
+        <a href="contact.html">Contact</a>
     </div>
+
     <div class="container">
-        <div class="search-container" id="search-container">
-            <input type="text" id="search-query" placeholder="Search YouTube">
-            <button onclick="searchYouTube()">Search</button>
-        </div>
-        <div id="results"></div>
-        <div id="player"></div>
+        <h1>Welcome to Our Homepage</h1>
+        <p>This is a simple home page with a navigation bar. Use the links above to navigate to different pages.</p>
     </div>
 
-    <script>
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        var player;
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('player', {
-                height: '577',
-                width: '1200',
-                videoId: '',
-                playerVars: {
-                    'playsinline': 1
-                },
-                events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange
-                }
-            });
-        }
-
-        function onPlayerReady(event) {
-            // Player is ready
-        }
-
-        function onPlayerStateChange(event) {
-            // Handle player state changes
-        }
-
-        function stopVideo() {
-            player.stopVideo();
-        }
-
-        function searchYouTube() {
-            var query = document.getElementById('search-query').value;
-            var apiKey = 'AIzaSyAQXjLOhOs5x4dB0Jou_KFTyGGDaU08T9I';
-            var url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&key=${apiKey}`;
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    var resultsContainer = document.getElementById('results');
-                    resultsContainer.innerHTML = ''; // Clear previous results
-
-                    if (data.items.length > 0) {
-                        data.items.forEach(item => {
-                            var videoId = item.id.videoId;
-                            var title = item.snippet.title;
-                            var thumbnailUrl = item.snippet.thumbnails.medium.url;
-                            var description = item.snippet.description.split('\n')[0]; // First line of description
-
-                            var resultItem = document.createElement('div');
-                            resultItem.className = 'video-result';
-                            resultItem.innerHTML = `
-                                <img src="${thumbnailUrl}" alt="${title}">
-                                <div class="video-info">
-                                    <h3>${title}</h3>
-                                    <p>${description}</p>
-                                </div>
-                            `;
-                            resultItem.onclick = function() {
-                                // Hide search results and show player
-                                document.getElementById('results').style.display = 'none';
-                                document.getElementById('player').style.display = 'flex';
-                                player.loadVideoById(videoId);
-                            };
-
-                            resultsContainer.appendChild(resultItem);
-                        });
-                    } else {
-                        resultsContainer.innerHTML = 'No videos found.';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching YouTube videos:', error);
-                    alert('An error occurred. Please try again.');
-                });
-        }
-
-        // Function to show search results and hide the player
-        function showSearchResults() {
-            document.getElementById('results').style.display = 'grid';
-            document.getElementById('player').style.display = 'none';
-        }
-
-        // Function to show the search container
-        function showSearchContainer() {
-            document.getElementById('search-container').style.display = 'flex';
-            document.getElementById('results').style.display = 'grid';
-            document.getElementById('player').style.display = 'none';
-        }
-
-        // Set up an event listener for the search input field to reset state when entering new searches
-        document.getElementById('search-query').addEventListener('input', showSearchResults);
-
-        // Set up an event listener to show search results when new search is performed
-        document.querySelector('.search-container button').addEventListener('click', showSearchResults);
-    </script>
 </body>
 </html>

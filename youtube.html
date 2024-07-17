@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>YouTube Player</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+    }
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #ff0000;
+      color: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .navbar h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .navbar a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 16px;
+    }
+    .navbar a:hover {
+      text-decoration: underline;
+    }
+    .container {
+      width: 80%;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .search-container {
+      display: flex;
+      align-items: center;
+      padding: 10px 0;
+      background-color: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .search-container input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 2px;
+      margin-right: 10px;
+      font-size: 16px;
+    }
+    .search-container button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #ff0000;
+      color: #fff;
+      font-size: 16px;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+    .search-container button:hover {
+      background-color: #cc0000;
+    }
+    #results {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .video-result {
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: box-shadow 0.3s ease;
+    }
+    .video-result:hover {
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .video-result img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .video-result .video-info {
+      padding: 10px;
+    }
+    .video-result .video-info h3 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.2;
+      color: #333;
+    }
+    .video-result .video-info p {
+      margin: 5px 0 0;
+      font-size: 14px;
+      color: #666;
+    }
+    #player {
+      display: none;
+      justify-content: center;
+      margin-top: 20px;
+      height: 577px;
+      width: 1200px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <h1>YouTube Player</h1>
+    <div>
+      <a href="index.html">Home</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </div>
+  </div>
+  <div class="container">
+    <div class="search-container">
+      <input type="text" id="search-query" placeholder="Search YouTube">
+      <button onclick="searchYouTube()">Search</button>
+    </div>
+    <div id="results"></div>
+    <div id="player"></div>
+  </div>
+
+  <script>
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    var player;
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '577',
+        width: '1200',
+        videoId: '',
+        playerVars: {
+          'playsinline': 1
+        },
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+
+    function onPlayerReady(event) {
+      // Player is ready
+    }
+
+    function onPlayerStateChange(event) {
+      // Handle player state changes
+    }
+
+    function stopVideo() {
+      player.stopVideo();
+    }
+
+    function searchYouTube() {
+      var query = document.getElementById('search-query').value;
+      var apiKey = 'AIzaSyAQXjLOhOs5x4dB0Jou_KFTyGGDaU08T9I';
+      var url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&key=${apiKey}`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          var resultsContainer = document.getElementById('results');
+          resultsContainer.innerHTML = ''; // Clear previous results
+
+          if (data.items.length > 0) {
+            data.items.forEach(item => {
+              var videoId = item.id.videoId;
+              var title = item.snippet.title;
+              var thumbnailUrl = item.snippet.thumbnails.medium.url;
+              var description = item.snippet.description.split('\n')[0]; // First line of description
+
+              var resultItem = document.createElement('div');
+              resultItem.className = 'video-result';
+              resultItem.innerHTML = `
+                <img src="${thumbnailUrl}" alt="${title}">
+                <div class="video-info">
+                  <h3>${title}</h3>
+                  <p>${description}</p>
+                </div>
+              `;
+              resultItem.onclick = function() {
+                // Hide search results and show player
+                document.getElementById('results').style.display = 'none';
+                document.getElementById('player').style.display = 'flex';
+                player.loadVideoById(videoId);
+              };
+
+              resultsContainer.appendChild(resultItem);
+            });
+          } else {
+            resultsContainer.innerHTML = 'No videos found.';
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching YouTube videos:', error);
+          alert('An error occurred. Please try again.');
+        });
+    }
+
+    // Function to show search results and hide the player
+    function showSearchResults() {
+      document.getElementById('results').style.display = 'grid';
+      document.getElementById('player').style.display = 'none';
+    }
+
+    // Set up an event listener for the search input field to reset state when entering new searches
+    document.getElementById('search-query').addEventListener('input', showSearchResults);
+
+    // Set up an event listener to show search results when new search is performed
+    document.querySelector('.search-container button').addEventListener('click', showSearchResults);
+  </script>
+</body>
+</html>
