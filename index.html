@@ -1,213 +1,240 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spotify Song Finder</title>
-  <style>
-    body {
-      font-family: 'Helvetica Neue', Arial, sans-serif;
-      background-color: #121212;
-      color: #FFFFFF;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-
-    h1 {
-      color: #1DB954;
-      margin-bottom: 20px;
-    }
-
-    input {
-      padding: 10px;
-      margin-bottom: 20px;
-      border: none;
-      border-radius: 5px;
-      width: 300px;
-      font-size: 16px;
-    }
-
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
-
-    li {
-      background-color: #181818;
-      border-radius: 5px;
-      padding: 10px;
-      margin-bottom: 10px;
-      width: 300px;
-      text-align: center;
-      transition: background-color 0.3s;
-    }
-
-    li:hover {
-      background-color: #282828;
-    }
-
-    .play-button {
-      background-color: #1DB954;
-      border: none;
-      border-radius: 50%;
-      color: #FFFFFF;
-      cursor: pointer;
-      font-size: 14px;
-      margin-top: 10px;
-      padding: 10px;
-      transition: background-color 0.3s;
-    }
-
-    .play-button:hover {
-      background-color: #1ed760;
-    }
-  </style>
+    <title>YouTube Player</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            display: flex;
+        }
+        .container {
+            width: 100%;
+            margin-left: 200px; /* Adjusted margin to account for the sidebar */
+            padding: 20px;
+        }
+        .search-container {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            background-color: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .search-container input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 2px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        .search-container button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #ff0000;
+            color: #fff;
+            font-size: 16px;
+            border-radius: 2px;
+            cursor: pointer;
+        }
+        .search-container button:hover {
+            background-color: #cc0000;
+        }
+        #results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .video-result {
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: box-shadow 0.3s ease;
+        }
+        .video-result:hover {
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .video-result img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .video-result .video-info {
+            padding: 10px;
+        }
+        .video-result .video-info h3 {
+            margin: 0;
+            font-size: 16px;
+            line-height: 1.2;
+            color: #333;
+        }
+        .video-result .video-info p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            color: #666;
+        }
+        #player {
+            display: none;
+            justify-content: center;
+            margin-top: 20px;
+            height: 577px;
+            width: 1200px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200px;
+            height: 100%;
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        #sidebar button {
+            background-color: #ff0000;
+            border: none;
+            color: #fff;
+            padding: 10px;
+            border-radius: 2px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        #sidebar button:hover {
+            background-color: #cc0000;
+        }
+        #sidebar h2 {
+            margin-top: 0;
+        }
+    </style>
 </head>
 <body>
-  <h1>Find and Play Songs</h1>
-  <input type="text" id="search-input" placeholder="Search for a song...">
-  <ul id="songs-list"></ul>
+    <div id="sidebar">
+        <h2>Menu</h2>
+        <button onclick="showSearchContainer()">Show Search</button>
+    </div>
+    <div class="container">
+        <div class="search-container" id="search-container">
+            <input type="text" id="search-query" placeholder="Search YouTube">
+            <button onclick="searchYouTube()">Search</button>
+        </div>
+        <div id="results"></div>
+        <div id="player"></div>
+    </div>
 
-  <script src="https://sdk.scdn.co/spotify-player.js"></script>
-  <script>
-    const clientId = 'b114a3753f4847cbb4af6b27360df038';
-    const clientSecret = '018795b0132e46bf8dddef270d806327'; // Store securely
-    const redirectUri = 'http://localhost/adet-sena/index.html';
+    <script>
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    let token = null;
-
-    async function exchangeCodeForToken(code) {
-      const response = await fetch('https://accounts.spotify.com/api/token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': 'Basic ' + btoa(clientId + ':' + clientSecret)
-        },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          code: code,
-          redirect_uri: redirectUri
-        })
-      });
-
-      const data = await response.json();
-      console.log('Token Data:', data);
-      token = data.access_token;
-      initializeSpotifyPlayer();
-    }
-
-    async function fetchWebApi(endpoint, method, body) {
-      const res = await fetch(`https://api.spotify.com/${endpoint}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        method,
-        body: JSON.stringify(body)
-      });
-      return await res.json();
-    }
-
-    async function searchSongs(query) {
-      const data = await fetchWebApi(
-        `v1/search?q=${encodeURIComponent(query)}&type=track&limit=5`, 'GET'
-      );
-      console.log('Search Results:', data);
-      return data.tracks.items;
-    }
-
-    async function displaySongs() {
-      const query = document.getElementById('search-input').value;
-      const songs = await searchSongs(query);
-      const songsList = document.getElementById('songs-list');
-      songsList.innerHTML = '';
-
-      songs.forEach(({ name, artists, uri }) => {
-        const listItem = document.createElement('li');
-        listItem.textContent = `${name} by ${artists.map(artist => artist.name).join(', ')}`;
-        
-        const playButton = document.createElement('button');
-        playButton.textContent = 'Play';
-        playButton.classList.add('play-button');
-        playButton.addEventListener('click', () => playTrack(uri));
-
-        listItem.appendChild(playButton);
-        songsList.appendChild(listItem);
-      });
-    }
-
-    let player;
-    let device_id;
-
-    function initializeSpotifyPlayer() {
-      window.onSpotifyWebPlaybackSDKReady = () => {
-        player = new Spotify.Player({
-          name: 'Web Playback SDK Quick Start Player',
-          getOAuthToken: cb => { cb(token); }
-        });
-
-        player.addListener('ready', ({ device_id: id }) => {
-          console.log('Ready with Device ID', id);
-          device_id = id;
-        });
-
-        // Error handling
-        player.addListener('initialization_error', ({ message }) => { console.error('Initialization Error:', message); });
-        player.addListener('authentication_error', ({ message }) => { console.error('Authentication Error:', message); });
-        player.addListener('account_error', ({ message }) => { console.error('Account Error:', message); });
-        player.addListener('playback_error', ({ message }) => { console.error('Playback Error:', message); });
-        player.addListener('player_state_changed', state => { console.log('Player State Changed:', state); });
-        player.addListener('not_ready', ({ device_id: id }) => { console.log('Device ID has gone offline', id); });
-
-        player.connect();
-      };
-    }
-
-    async function playTrack(uri) {
-      console.log('Attempting to play track with URI:', uri);
-      if (!device_id) {
-        console.error('Device ID is not available');
-        return;
-      }
-
-      fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device_id}`, {
-        method: 'PUT',
-        body: JSON.stringify({ uris: [uri] }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-      }).then(response => {
-        if (!response.ok) {
-          return response.json().then(err => Promise.reject(err));
-        } else {
-          console.log('Track played successfully');
+        var player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '577',
+                width: '1200',
+                videoId: '',
+                playerVars: {
+                    'playsinline': 1
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
         }
-      }).catch(err => {
-        console.error('Failed to play track:', err);
-      });
-    }
 
-    document.getElementById('search-input').addEventListener('change', displaySongs);
+        function onPlayerReady(event) {
+            // Player is ready
+        }
 
-    if (code) {
-      exchangeCodeForToken(code);
-    } else {
-      const authUrl = `https://accounts.spotify.com/authorize` +
-        `?response_type=code` +
-        `&client_id=${clientId}` +
-        `&scope=user-read-playback-state%20user-modify-playback-state%20streaming%20user-top-read` +
-        `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-        `&state=your_random_state`;
+        function onPlayerStateChange(event) {
+            // Handle player state changes
+        }
 
-      window.location.href = authUrl;
-    }
-  </script>
+        function stopVideo() {
+            player.stopVideo();
+        }
+
+        function searchYouTube() {
+            var query = document.getElementById('search-query').value;
+            var apiKey = 'AIzaSyAQXjLOhOs5x4dB0Jou_KFTyGGDaU08T9I';
+            var url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&key=${apiKey}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    var resultsContainer = document.getElementById('results');
+                    resultsContainer.innerHTML = ''; // Clear previous results
+
+                    if (data.items.length > 0) {
+                        data.items.forEach(item => {
+                            var videoId = item.id.videoId;
+                            var title = item.snippet.title;
+                            var thumbnailUrl = item.snippet.thumbnails.medium.url;
+                            var description = item.snippet.description.split('\n')[0]; // First line of description
+
+                            var resultItem = document.createElement('div');
+                            resultItem.className = 'video-result';
+                            resultItem.innerHTML = `
+                                <img src="${thumbnailUrl}" alt="${title}">
+                                <div class="video-info">
+                                    <h3>${title}</h3>
+                                    <p>${description}</p>
+                                </div>
+                            `;
+                            resultItem.onclick = function() {
+                                // Hide search results and show player
+                                document.getElementById('results').style.display = 'none';
+                                document.getElementById('player').style.display = 'flex';
+                                player.loadVideoById(videoId);
+                            };
+
+                            resultsContainer.appendChild(resultItem);
+                        });
+                    } else {
+                        resultsContainer.innerHTML = 'No videos found.';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching YouTube videos:', error);
+                    alert('An error occurred. Please try again.');
+                });
+        }
+
+        // Function to show search results and hide the player
+        function showSearchResults() {
+            document.getElementById('results').style.display = 'grid';
+            document.getElementById('player').style.display = 'none';
+        }
+
+        // Function to show the search container
+        function showSearchContainer() {
+            document.getElementById('search-container').style.display = 'flex';
+            document.getElementById('results').style.display = 'grid';
+            document.getElementById('player').style.display = 'none';
+        }
+
+        // Set up an event listener for the search input field to reset state when entering new searches
+        document.getElementById('search-query').addEventListener('input', showSearchResults);
+
+        // Set up an event listener to show search results when new search is performed
+        document.querySelector('.search-container button').addEventListener('click', showSearchResults);
+    </script>
 </body>
 </html>
